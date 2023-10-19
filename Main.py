@@ -1,7 +1,5 @@
 import os #importerar för att radera info som användaren inte behöver längre 
-import re
-
-import inquirer # importerar pick för att skapa en meny i terminalen
+import pick # importerar pick för att skapa en meny i terminalen 
 import random # generera ISBN för böcker
 import re #regex för att validera e-postadress
 from datetime import date, timedelta, datetime #räkna återlämningsdatum
@@ -11,28 +9,19 @@ from Account import *
 
 #LOGGA IN 
 def login():
-#	options = ["[PERSONAL]", "[BESÖKARE]"] #val av inloggningar
-#	option, index = pick.pick(options, "Logga in", indicator='=>', default_index=0)
-
-	login_choices = ["PERSONAL", "BESÖKARE"]
-
-
-	questions = [inquirer.List('login_choice', message="Logga in som", choices=login_choices)]
-	answers = inquirer.prompt(questions)
-	option = answers['login_choice']
-
-	if option == "PERSONAL":
+	options = ["[PERSONAL]", "[BESÖKARE]"] #val av inloggningar
+	option, index = pick.pick(options, "Logga in", indicator='=>', default_index=0)
+	if option == "[PERSONAL]":
 		print("PERSONAL")
-	elif option == "BESÖKARE":
+	elif option == "[BESÖKARE]":
 		print("BESÖKARE")
 	signingIn = True
 	while(signingIn):
-		if option == "PERSONAL":
+		if option == "[PERSONAL]":
 			password = input("\nPassword: ") 
 			if password == "iLoveBooks": #kollar lösenord
 				print("\nVälkommen till systemet!")
 				signingIn = False #breaking the loop (personal)
-				persRun()
 		else:
 			print("\nVälkommen till biblioteket!")
 			signingIn = False	#breaking the loop (besökare)
@@ -44,25 +33,17 @@ def persRun():
 	while persRunning:
 		#input("\nTRYCK PÅ VALFRI KNAPP FÖR ATT FORTSÄTTA")
 		os.system('cls')
-
-		questions = [
-			inquirer.List('action',
-						  message="Välj en åtgärd",
-						  choices=["LÄGGA TILL EN BOK", "REDIGERA EN BOK", "RADERA EN BOK", "LISTA BÖCKER", "TILLBAKA"]
-						  )
-		]
-		answers = inquirer.prompt(questions)
-		choice = answers['action']
-
+		options = ["LÄGGA TILL EN BOK", "REDIGERA BÖCKER", "TA BORT BÖCKER", "LISTA BÖCKER", "AVSLUTA"]
+		choice, index = pick.pick(options, "MENY", indicator='=>', default_index=0)
 		if choice == "LÄGGA TILL EN BOK":
 			addBooks()
-		if choice == "REDIGERA EN BOK":
+		if choice == "REDIGERA BÖCKER":
 			editBooks()	
-		if choice == "RADERA EN BOK":
+		if choice == "TA BORT BÖCKER":
 			removeBooks()
 		if choice == "LISTA BÖCKER":
 			allBooks()
-		if choice == "TILLBAKA":
+		if choice == "AVSLUTA":
 			persRunning = False
 
 
@@ -71,16 +52,8 @@ def persRun():
 
 #LÄGGA TILL BÖCKER
 def addBooks():
-#	options = ["LÄGGA TILL EN BOK", "TILLBAKA"]
-#	choice, index = pick.pick(options, indicator='=>', default_index=0)
-	options = [
-		inquirer.List('action',
-					  message="Fortsätt om du vill lägga till en bok",
-					  choices=["LÄGGA TILL EN BOK", "TILLBAKA"])
-	]
-
-	answers = inquirer.prompt(options)
-	choice = answers['action']
+	options = ["LÄGGA TILL EN BOK", "TILLBAKA"]
+	choice, index = pick.pick(options, indicator='=>', default_index=0)
 
 	if choice == "LÄGGA TILL EN BOK":
 		name = str(input("Författarens namn och efternamn: "))
@@ -91,17 +64,7 @@ def addBooks():
 		
 		options = ["ja","nej"]
 		booksO = Book(name, title, publ_year, ISBN) #håller input
-	#	variable, index = pick.pick(options, "\nÄr du säker på att du vill lägga till "+ booksO.getTitle() + " av " + booksO.getAuthor() + " ?", indicator='=>', default_index=0)
-
-		options = [
-			inquirer.List('action',
-						  message="\nÄr du säker på att du vill lägga till "+ booksO.getTitle() + " av " + booksO.getAuthor() + " ?",
-						  choices=["ja", "nej"])
-		]
-
-		answers = inquirer.prompt(options)
-		variable = answers['action']
-
+		variable, index = pick.pick(options, "\nÄr du säker på att du vill lägga till "+ booksO.getTitle() + " av " + booksO.getAuthor() + " ?", indicator='=>', default_index=0)
 		if variable == "ja":
 			books.append(booksO) #skickar info till listan med alla böcker
 			os.system('cls')
@@ -151,17 +114,8 @@ def validYear():
 
 #REDIGERA BÖCKER															
 def editBooks():  														
-#	options = ["SÖK", "TILLBAKA"]
-#	choice, index = pick.pick(options, "REDIGERA BÖCKER", indicator='=>', default_index=0)
-
-	options = [
-		inquirer.List('action',
-					  message="REDIGERA BÖCKER",
-					  choices=["SÖK", "TILLBAKA"])
-	]
-
-	answers = inquirer.prompt(options)
-	choice = answers['action']
+	options = ["SÖK", "TILLBAKA"]
+	choice, index = pick.pick(options, "REDIGERA BÖCKER", indicator='=>', default_index=0)
 
 	if choice  == "SÖK": #sök-algoritmen
 		searchWord = input("Ange författarens namn eller bokens titel för att hitta boken: ").capitalize() #ange namnet på boken eller författaren för att hitta rätt bok
@@ -176,43 +130,23 @@ def editBooks():
 				print("INGA BÖCKER HITTADES")
 		# använder try för att undvika traceback from pick.pick om boken inte har hittats i options
 		try:	
-			options = alla
-			answers = inquirer.prompt(options)
-			choice = answers['action']
-			#choice, index = pick.pick(options, indicator='=>', default_index=0)
+			options = alla 
+			choice, index = pick.pick(options, indicator='=>', default_index=0)
 		
 			for b in books: 	
 				if (choice == b.getTitle() + ", " + b.getAuthor()  + ", ISBN: " + str(b.getISBN())):
 					found = True
 
-					#options = ["NAMN","TITELN", "UTGIVNINGSÅR", "TILLBAKA"]
-					#variable, index = pick.pick(options, b.present() + "\n\n VÄLJ DEN BOK SOM SKA REDIGERAS", indicator='=>', default_index=0)
-
-					options = [
-						inquirer.List('action',
-									  message="\n\n VÄLJ DEN BOK SOM SKA REDIGERAS",
-									  choices=["NAMN", "TITELN", "UTGIVNINGSÅR", "TILLBAKA"])
-					]
-
-					answers = inquirer.prompt(options)
-					variable = answers['action']
+					options = ["NAMN","TITELN", "UTGIVNINGSÅR", "TILLBAKA"]
+					variable, index = pick.pick(options, b.present() + "\n\n VÄLJ DEN BOK SOM SKA REDIGERAS", indicator='=>', default_index=0)
 
 					if variable == "NAMN": #redigerar namn
 						os.system('cls')
 						nName = input("Författarens nya namn och efternamn: ")
 						x = nName 
 						
-						#options = ["ja","nej"]
-						#confirm, index = pick.pick(options, "Stämmer det att författarens förnamn och efternamn är " + x + " ?", indicator='=>', default_index=0)
-
-						options = [
-							inquirer.List('action',
-										  message="Stämmer det att författarens förnamn och efternamn är " + x + " ?",
-										  choices=["ja","nej"])
-						]
-
-						answers = inquirer.prompt(options)
-						confirm = answers['action']
+						options = ["ja","nej"]
+						confirm, index = pick.pick(options, "Stämmer det att författarens förnamn och efternamn är " + x + " ?", indicator='=>', default_index=0)
 						
 						if confirm == "ja":
 							os.system('cls')
@@ -230,17 +164,8 @@ def editBooks():
 						nTitle = input("Ny titel: ")	
 						x = nTitle 
 						
-						#options = ["ja","nej"]
-						#confirm, index = pick.pick(options, "Stämmer det att den nya titeln är " + x + " ?", indicator='=>', default_index=0)
-
-						options = [
-							inquirer.List('action',
-										  message="Stämmer det att den nya titeln är " + x + " ?" + x + " ?",
-										  choices=["ja", "nej"])
-						]
-
-						answers = inquirer.prompt(options)
-						confirm = answers['action']
+						options = ["ja","nej"]
+						confirm, index = pick.pick(options, "Stämmer det att den nya titeln är " + x + " ?", indicator='=>', default_index=0)
 						
 						if confirm == "ja":
 							os.system('cls')
@@ -256,17 +181,8 @@ def editBooks():
 						nYear = input("Nytt utgivningsår: ")
 						x = nYear 
 						
-						#options = ["ja","nej"]
-						#confirm, index = pick.pick(options, "Stämmer det att det nya utgivningsåret är " + x + " ?", indicator='=>', default_index=0)
-
-						options = [
-							inquirer.List('action',
-										  message="Stämmer det att det nya utgivningsåret är " + x + " ?",
-										  choices=["ja", "nej"])
-						]
-
-						answers = inquirer.prompt(options)
-						confirm = answers['action']
+						options = ["ja","nej"]
+						confirm, index = pick.pick(options, "Stämmer det att det nya utgivningsåret är " + x + " ?", indicator='=>', default_index=0)
 						
 						if confirm == "ja":
 							os.system('cls')
@@ -291,17 +207,8 @@ def editBooks():
 def removeBooks():
 	# använder try för att undvika traceback from pick.pick om boken inte har hittats i options
 	try:
-		#options = ["SÖK EN BOK SOM DU VILL TA BORT", "TILLBAKA"] #sök-algoritm
-		#choice, index = pick.pick(options, "TA BORT EN BOK", indicator='=>', default_index=0)
-
-		options = [
-			inquirer.List('action',
-						  message="TA BORT EN BOK",
-						  choices=["SÖK EN BOK SOM DU VILL TA BORT", "TILLBAKA"])   #sök-algoritm
-		]
-
-		answers = inquirer.prompt(options)
-		choice = answers['action']
+		options = ["SÖK EN BOK SOM DU VILL TA BORT", "TILLBAKA"] #sök-algoritm
+		choice, index = pick.pick(options, "TA BORT EN BOK", indicator='=>', default_index=0)
 
 		if choice  == "SÖK EN BOK SOM DU VILL TA BORT":
 			searchWord = input("Sök: ").capitalize()
@@ -311,23 +218,13 @@ def removeBooks():
 				if (searchWord in b.getAuthor()) or (searchWord in b.getTitle()):
 					alla.append(b.getTitle() + ", " + b.getAuthor() + ", ISBN: " + str(b.getISBN()))
 					#found = True
-			options = alla
-			answers = inquirer.prompt(options)
-			choice = answers['action']
+			options = alla 
+			choice, index = pick.pick(options, indicator='=>', default_index=0)
 
 			for b in books: 	
 				if (choice == b.getTitle() + ", " + b.getAuthor()  + ", ISBN: " + str(b.getISBN())):
-					#options = ["ja","nej"]
-					#confirm, index = pick.pick(options, b.present()+ "\n" + "\nÄr du säker på att du vill ta bort "+ b.getTitle() + " av " + b.getAuthor() + ", ISBN: " + str(b.getISBN()) + "?", indicator='=>', default_index=0)
-					options = [
-						inquirer.List('action',
-									  message= b.present()+ "\n" + "\nÄr du säker på att du vill ta bort "+ b.getTitle() + " av " + b.getAuthor() + ", ISBN: " + str(b.getISBN()) + "?",
-									  choices=["ja", "nej"])
-					]
-
-					answers = inquirer.prompt(options)
-					confirm = answers['action']
-
+					options = ["ja","nej"]
+					confirm, index = pick.pick(options, b.present()+ "\n" + "\nÄr du säker på att du vill ta bort "+ b.getTitle() + " av " + b.getAuthor() + ", ISBN: " + str(b.getISBN()) + "?", indicator='=>', default_index=0)
 
 					if confirm == "ja":
 						books.remove(b)
@@ -359,21 +256,9 @@ def guestRun():
 	guestRunning = True
 	while guestRunning:
 		#input("\nTRYCK PÅ VALFRI KNAPP FÖR ATT FORTSÄTTA")
-		os.system('cls')
-
-		options = [
-			inquirer.List('action',
-						  message="MENY | BESÖKARE",
-						  choices=["SKAFFA BIBLIOTEKSKONTO", "LÅNA", "MINA LÅN", "LÄMNA", "TILLBAKA"])
-		]
-
-		answers = inquirer.prompt(options)
-		sel = answers['action']
-
-
-#		options = ["SKAFFA BIBLIOTEKSKONTO", "LÅNA", "MINA LÅN", "LÄMNA", "TILLBAKA"]
-#		sel,index = pick.pick(options, "MENY | BESÖKARE: ", indicator='=>', default_index=0)
-
+		os.system('cls')	
+		options = ["SKAFFA BIBLIOTEKSKONTO", "LÅNA", "MINA LÅN", "LÄMNA", "TILLBAKA"]
+		sel,index = pick.pick(options, "MENY | BESÖKARE: ", indicator='=>', default_index=0)
 		if sel == "SKAFFA BIBLIOTEKSKONTO":
 			createLibraryAccount() 
 		if sel == "LÅNA":
@@ -415,18 +300,8 @@ def createLibraryAccount():
 		phoneN = checkPhoneN()
 		info = Account(nameN, surnameN, persN, pinN, emailN, phoneN) #info håller objekt av klassen Account 
 
-		#options = ["ja","nej"]
-		#confirm, index = pick.pick(options, "\nKONTROLLERA ATT ALL INFORMATION STÄMMER\n\n"+ info.present(), indicator='=>', default_index=0)
-
-		options = [
-			inquirer.List('action',
-						  message="\nKONTROLLERA ATT ALL INFORMATION STÄMMER\n\n"+ info.present(),
-						  choices=["ja", "nej"])
-		]
-
-		answers = inquirer.prompt(options)
-		confirm = answers['action']
-
+		options = ["ja","nej"]
+		confirm, index = pick.pick(options, "\nKONTROLLERA ATT ALL INFORMATION STÄMMER\n\n"+ info.present(), indicator='=>', default_index=0)
 		if confirm == "ja":
 			accounts.append(info) #lägger info i listan med andra objekt av klassen Accounts
 			
@@ -438,34 +313,15 @@ def createLibraryAccount():
 def changeInfo(info):
 	
 
-	#options = ["FÖRNAMN","EFTERNAMN", "PERSONNUMMER", "PIN KOD", "E-POSTADRESS", "TELEFONNUMMER", "TILLBAKA"]
-	#variable, index = pick.pick(options, "VÄLJ DET SOM DU VILL REDIGERA\n", indicator='=>', default_index=0)
-
-	options = [
-		inquirer.List('action',
-					  message="VÄLJ DET SOM DU VILL REDIGERA\n",
-					  choices=["FÖRNAMN","EFTERNAMN", "PERSONNUMMER", "PIN KOD", "E-POSTADRESS", "TELEFONNUMMER", "TILLBAKA"])
-	]
-
-	answers = inquirer.prompt(options)
-	variable = answers['action']
-
+	options = ["FÖRNAMN","EFTERNAMN", "PERSONNUMMER", "PIN KOD", "E-POSTADRESS", "TELEFONNUMMER", "TILLBAKA"]
+	variable, index = pick.pick(options, "VÄLJ DET SOM DU VILL REDIGERA\n", indicator='=>', default_index=0)
+	
 	if variable == "FÖRNAMN":
 		changedName = input("Skriv in ditt förnamn: ").capitalize()
 		info.setName(changedName)
 		
-		#options = ["ja","nej"]
-		#confirm, index = pick.pick(options, "Stämmer det att ditt namn är "+ info.getName() + "?", indicator='=>', default_index=0)
-		options = [
-			inquirer.List('action',
-						  message="Stämmer det att ditt namn är "+ info.getName() + "?",
-						  choices=["ja", "nej"])
-		]
-
-		answers = inquirer.prompt(options)
-		confirm = answers['action']
-
-
+		options = ["ja","nej"]
+		confirm, index = pick.pick(options, "Stämmer det att ditt namn är "+ info.getName() + "?", indicator='=>', default_index=0)
 		if confirm == "ja":
 			accounts.append(info)
 			os.system('cls')
@@ -479,18 +335,8 @@ def changeInfo(info):
 		info.setSurname(changedSurname)
 		
 
-		#options = ["ja","nej"]
-		#confirm, index = pick.pick(options, "Stämmer det att ditt efternamn är "+ info.getSurname() + "?", indicator='=>', default_index=0)
-
-		options = [
-			inquirer.List('action',
-						  message="Stämmer det att ditt efternamn är "+ info.getSurname() + "?",
-						  choices=["ja", "nej"])
-		]
-
-		answers = inquirer.prompt(options)
-		confirm = answers['action']
-
+		options = ["ja","nej"]
+		confirm, index = pick.pick(options, "Stämmer det att ditt efternamn är "+ info.getSurname() + "?", indicator='=>', default_index=0)
 		if confirm == "ja":
 			accounts.append(info)
 			os.system('cls')
@@ -507,18 +353,8 @@ def changeInfo(info):
 		else:
 			info.setPersN(changedPersN)
 			
-			#options = ["ja","nej"]
-			#confirm, index = pick.pick(options, "Stämmer det att ditt personnummer är "+ str(info.getPersN()) + "?", indicator='=>', default_index=0)
-
-			options = [
-				inquirer.List('action',
-							  message="Stämmer det att ditt personnummer är "+ str(info.getPersN()) + "?",
-							  choices=["ja", "nej"])
-			]
-
-			answers = inquirer.prompt(options)
-			confirm = answers['action']
-
+			options = ["ja","nej"]
+			confirm, index = pick.pick(options, "Stämmer det att ditt personnummer är "+ str(info.getPersN()) + "?", indicator='=>', default_index=0)
 			if confirm == "ja":
 				accounts.append(info)
 				os.system('cls')
@@ -533,19 +369,8 @@ def changeInfo(info):
 		changedPin = checkpinN()
 		info.setPin(changedPin)
 		 
-		#options = ["ja","nej"]
-		#confirm, index = pick.pick(options, "Stämmer det att din pin kod är "+ str(info.getPin()) + "?", indicator='=>', default_index=0)
-
-		options = [
-			inquirer.List('action',
-						  message="Stämmer det att din pin kod är "+ str(info.getPin()) + "?",
-						  choices=["ja", "nej"])
-		]
-
-		answers = inquirer.prompt(options)
-		confirm = answers['action']
-
-
+		options = ["ja","nej"]
+		confirm, index = pick.pick(options, "Stämmer det att din pin kod är "+ str(info.getPin()) + "?", indicator='=>', default_index=0)
 		if confirm == "ja":
 			accounts.append(info)
 			os.system('cls')
@@ -560,18 +385,8 @@ def changeInfo(info):
 		changedEmail = checkEmailN()
 		info.setEmail(changedEmail)
 
-		#options = ["ja","nej"]
-		#confirm, index = pick.pick(options, "Stämmer det att din e-postadress är "+ str(info.getEmail()) + "?", indicator='=>', default_index=0)
-
-		options = [
-			inquirer.List('action',
-						  message="Stämmer det att din e-postadress är "+ str(info.getEmail()) + "?",
-						  choices=["ja", "nej"])
-		]
-
-		answers = inquirer.prompt(options)
-		confirm = answers['action']
-
+		options = ["ja","nej"]
+		confirm, index = pick.pick(options, "Stämmer det att din e-postadress är "+ str(info.getEmail()) + "?", indicator='=>', default_index=0)
 		if confirm == "ja":
 			accounts.append(info)
 			os.system('cls')
@@ -586,18 +401,8 @@ def changeInfo(info):
 		changedPhone = checkPhoneN()
 		info.setPhone(changedPhone)
 
-		#options = ["ja","nej"]
-		#confirm, index = pick.pick(options, "Stämmer det att ditt telefonnummer är "+ str(info.getPhone()) + "?", indicator='=>', default_index=0)
-
-		options = [
-			inquirer.List('action',
-						  message="Stämmer det att ditt telefonnummer är "+ str(info.getPhone()) + "?",
-						  choices=["ja", "nej"])
-		]
-
-		answers = inquirer.prompt(options)
-		confirm = answers['action']
-
+		options = ["ja","nej"]
+		confirm, index = pick.pick(options, "Stämmer det att ditt telefonnummer är "+ str(info.getPhone()) + "?", indicator='=>', default_index=0)
 		if confirm == "ja":
 			accounts.append(info)
 			os.system('cls')
@@ -714,17 +519,8 @@ def borrowBook(PNumber):
 		isbns = [] #håller input
 
 		while looping:
-			#options = ["LÅNA NY BOK","KLAR"]
-			#sel, index = pick.pick(options, "VÄLJ ALTERNATIV", indicator='=>', default_index=0)
-
-			options = [
-				inquirer.List('action',
-							  message="VÄLJ ALTERNATIV",
-							  choices=["LÅNA NY BOK","KLAR"])
-			]
-
-			answers = inquirer.prompt(options)
-			sel = answers['action']
+			options = ["LÅNA NY BOK","KLAR"]
+			sel, index = pick.pick(options, "VÄLJ ALTERNATIV", indicator='=>', default_index=0)
 
 			if sel == "LÅNA NY BOK":
 				scannedBook = input("\nScanna boken som du vill låna: ") # IMITATION AV ATT BOKEN SCANNAS. MAN BEHÖVER ANGE ISBN. 
@@ -763,18 +559,8 @@ def borrowBook(PNumber):
 				if userBorrowedBooks == True: #användaren har lånat en bok
 					for reg in registredBooks:
 						print(reg + " är nu utlånad till dig. Återlämningsdatum är " + str(returnDate))
-					#options = ["SKRIVA UT ETT KVITTO","INGET KVITTO"]
-					#sel, index = pick.pick(options, "VILL DU HA KVITTOT?", indicator='=>', default_index=0)
-
-					options = [
-						inquirer.List('action',
-									  message="VILL DU HA KVITTOT?",
-									  choices=["SKRIVA UT ETT KVITTO","INGET KVITTO"])
-					]
-
-					answers = inquirer.prompt(options)
-					sel = answers['action']
-
+					options = ["SKRIVA UT ETT KVITTO","INGET KVITTO"]
+					sel, index = pick.pick(options, "VILL DU HA KVITTOT?", indicator='=>', default_index=0)
 					if sel == "SKRIVA UT ETT KVITTO":
 						print("\nSkriver ut...") #immiterar utskrift
 						input()
@@ -840,18 +626,8 @@ def returnBook():
 	hasReturned = False #True om boken var återlämnad
 	while looping:
 		found = False
-		#options = ["LÄMNA EN BOK","KLAR"]
-		#sel, index = pick.pick(options, "VÄLJ ALTERNATIV", indicator='=>', default_index=0)
-
-		options = [
-			inquirer.List('action',
-						  message="VÄLJ ALTERNATIV",
-						  choices=["LÄMNA EN BOK","KLAR"])
-		]
-
-		answers = inquirer.prompt(options)
-		sel = answers['action']
-
+		options = ["LÄMNA EN BOK","KLAR"]
+		sel, index = pick.pick(options, "VÄLJ ALTERNATIV", indicator='=>', default_index=0)
 		if sel == "LÄMNA EN BOK":
 			res = returnProcess()
 			if res != "": #res behöver läggas till registeredBooks bara om det finns nån value
@@ -917,7 +693,7 @@ books[8].setRentedTo("198503041265")
 while True:
 
 	res = login()
-	if res == "PERSONAL":
+	if res == "[PERSONAL]":
 		persRun()
-	elif res == "BESÖKARE":
-		guestRun()
+	elif res == "[BESÖKARE]":
+		guestRun()	
